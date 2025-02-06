@@ -1,4 +1,4 @@
-local Todo = {}
+local M = {}
 
 local function todo_new(obj)
     local id = vim.tbl_get(obj, "id")
@@ -8,14 +8,12 @@ local function todo_new(obj)
     return {
         id = id,
         name = name,
-        due = due,
+        due = due or "No Due Date",
         completed = completed,
     }
 end
 
----@param data table: The data to parse
----@return table: The list of todos
-Todo.list = function(data)
+M.list = function(data)
     local todo_list = {}
     for _, v in ipairs(data) do
         local t = todo_new(v)
@@ -24,4 +22,4 @@ Todo.list = function(data)
     return todo_list
 end
 
-return Todo
+return M

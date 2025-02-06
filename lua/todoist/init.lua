@@ -5,10 +5,10 @@ local api = require("todoist.api")
 ---The configuration for the plugin
 ---@class TodoistConfig
 ---@field token_api string: The api token to use
----@field filter string: Test value
+---@field filter table: Test value
 M.config = {
     token_api = "",
-    filter = "",
+    filters = {},
 }
 
 ---Setup the configuration for the plugin
@@ -23,8 +23,12 @@ M.setup = function(opts)
     end
 end
 
-M.get_tasks = function()
-    api.api_get_tasks(M.config.token_api)
+M.show_tasks = function()
+    api.show_tasks(M.config.token_api)
+end
+
+M.add_tasks = function()
+    api.add_tasks(M.config.token_api)
 end
 
 return M
