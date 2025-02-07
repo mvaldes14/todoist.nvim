@@ -4,30 +4,27 @@ local url = "https://api.todoist.com/rest/v2/"
 local utils = require("todoist.utils")
 local todos = require("todoist.data")
 local ui = require("todoist.ui")
+local config = require("todoist.config")
 
--- TODO: Find a way to get the token from the setup instead of passing it around in the api call
--- maybe defined at the module level?
-
---- Gets all tasks from all projects
---- @params token string: The api token to use
-local function api_get_tasks(token)
+local function api_get_tasks()
+    local token = config.get_config().token_api
     local data = utils.get_request(url .. "tasks", token)
     return todos.list(data)
 end
 
-local function filter_task(token, item_name)
-    local data = api_get_tasks(token)
-    for _, v in ipairs(data) do
-        if v.name == item_name then
-            return v.id
-        end
-    end
-end
+-- local function filter_task()
+--     local data = api_get_tasks(config.token_api)
+--     for _, v in ipairs(data) do
+--         if v.name == item_name then
+--             return v.id
+--         end
+--     end
+-- end
 
-M.show_tasks = function(token)
-    local ns_id = vim.api.nvim_create_namespace("demo")
+M.show_tasks = function()
+    local ns_id = vim.api.nvim_create_namespace("todoist")
     local ui_win = ui.create_win()
-    local todo_list = api_get_tasks(token)
+    local todo_list = api_get_tasks()
     for i, v in ipairs(todo_list) do
         local box = "[ ]"
         if v.completed then
