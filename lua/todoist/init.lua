@@ -8,7 +8,11 @@ local config = require("todoist.config")
 M.setup = function(opts)
     opts = opts or {}
     opts.token_api = os.getenv("TODOIST_TOKEN") or opts.token_api
-    config.set_config(opts)
+    if opts.token_api == nil then
+        vim.notify("No Token found")
+    else
+        config.set_config(opts)
+    end
 end
 
 M.show_tasks = function(opts)

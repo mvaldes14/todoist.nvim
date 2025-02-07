@@ -6,7 +6,9 @@ local M = {}
 ---@field filters table: Test value
 M.config = {
     token_api = "",
-    filters = {},
+    filters = {
+        all = "all",
+    },
 }
 
 M.set_config = function(opts)
