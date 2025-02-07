@@ -11,8 +11,8 @@ M.setup = function(opts)
     config.set_config(opts)
 end
 
-M.show_tasks = function()
-    api.show_tasks()
+M.show_tasks = function(opts)
+    api.show_tasks(opts.args)
 end
 
 M.add_tasks = function()

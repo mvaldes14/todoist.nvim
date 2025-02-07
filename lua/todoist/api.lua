@@ -1,14 +1,13 @@
 local M = {}
 
-local url = "https://api.todoist.com/rest/v2/"
 local utils = require("todoist.utils")
 local todos = require("todoist.data")
 local ui = require("todoist.ui")
 local config = require("todoist.config")
 
-local function api_get_tasks()
+local function api_get_tasks(filter)
     local token = config.get_config().token_api
-    local data = utils.get_request(url .. "tasks", token)
+    local data = utils.get_request("tasks", filter, token)
     return todos.list(data)
 end
 
@@ -20,11 +19,21 @@ end
 --         end
 --     end
 -- end
+--
+local function config_filter_check(name)
+    local filters = config.get_config().filters
+    if filters[name] then
+        return filters[name]
+    else
+        return filters["all"]
+    end
+end
 
-M.show_tasks = function()
+M.show_tasks = function(args)
     local ns_id = vim.api.nvim_create_namespace("todoist")
     local ui_win = ui.create_win()
-    local todo_list = api_get_tasks()
+    local filter = config_filter_check(args)
+    local todo_list = api_get_tasks(filter)
     for i, v in ipairs(todo_list) do
         local box = "[ ]"
         if v.completed then
