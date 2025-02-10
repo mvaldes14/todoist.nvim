@@ -7,8 +7,14 @@ local config = require("todoist.config")
 
 local function api_get_tasks(filter)
     local token = config.get_config().token_api
-    local data = utils.get_request("tasks", filter, token)
-    return todos.list(data)
+    local data = utils.get_request_tasks(filter, token)
+    return todos.task_list(data)
+end
+
+local function api_get_projects()
+    local token = config.get_config().token_api
+    local data = utils.get_request_projects(token)
+    return todos.project_list(data)
 end
 
 -- local function filter_task()
@@ -19,7 +25,17 @@ end
 --         end
 --     end
 -- end
---
+
+local function get_project_name(id, project_list)
+    local res = ""
+    for _, v in ipairs(project_list) do
+        if v.id == id then
+            res = v.name
+        end
+    end
+    return res
+end
+
 local function config_filter_check(name)
     local filters = config.get_config().filters
     if filters[name] then
@@ -34,15 +50,23 @@ M.show_tasks = function(args)
     local ui_win = ui.create_win()
     local filter = config_filter_check(args)
     local todo_list = api_get_tasks(filter)
+    local project_list = api_get_projects()
+    table.sort(todo_list, function(a, b)
+        return a.due < b.due
+    end)
     for i, v in ipairs(todo_list) do
         local box = "[ ]"
         if v.completed then
             box = "[x]"
         end
-        vim.api.nvim_buf_set_lines(ui_win.buf, i - 1, -1, false, { "- " .. box .. " " .. v.name })
+        v.project_name = get_project_name(v.project_id, project_list)
+        vim.api.nvim_buf_set_lines(ui_win.buf, i - 1, -1, false, {
+            "- " .. box .. " " .. v.name,
+        })
+        vim.api.nvim_buf_add_highlight(ui_win.buf, -1, "IncSearch", i - 1, 0, #v.project_name)
         vim.api.nvim_buf_set_extmark(ui_win.buf, ns_id, i - 1, 0, {
             id = i,
-            virt_text = { { v.due, "Comment" } },
+            virt_text = { { v.project_name .. " " .. v.due, "Comment" } },
             virt_text_pos = "eol",
         })
     end

@@ -11,10 +11,9 @@ local function encode_url(str)
     return str
 end
 
-M.get_request = function(endpoint, filter, token)
+M.get_request_tasks = function(filter, token)
     local params = encode_url(filter)
-    local full_url = url .. endpoint .. "?filter=" .. params
-    print(full_url)
+    local full_url = url .. "tasks" .. "?filter=" .. params
     local result = vim.system({
         "curl",
         "-s",
@@ -26,6 +25,22 @@ M.get_request = function(endpoint, filter, token)
     return vim.json.decode(result)
 end
 
+M.get_request_projects = function(token)
+    local result = vim.system({
+        "curl",
+        "-s",
+        "-H",
+        "Authorization: Bearer " .. token,
+        url .. "projects",
+    })
+        :wait().stdout
+    return vim.json.decode(result)
+end
+
 M.post_request = function() end
+
+M.print = function(payload)
+    print(vim.inspect(payload))
+end
 
 return M
