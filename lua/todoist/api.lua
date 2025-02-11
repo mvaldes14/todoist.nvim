@@ -60,15 +60,17 @@ M.show_tasks = function(args)
             box = "[x]"
         end
         v.project_name = get_project_name(v.project_id, project_list)
-        vim.api.nvim_buf_set_lines(ui_win.buf, i - 1, -1, false, {
-            "- " .. box .. " " .. v.name,
-        })
-        vim.api.nvim_buf_add_highlight(ui_win.buf, -1, "IncSearch", i - 1, 0, #v.project_name)
-        vim.api.nvim_buf_set_extmark(ui_win.buf, ns_id, i - 1, 0, {
-            id = i,
-            virt_text = { { v.project_name .. " " .. v.due, "Comment" } },
-            virt_text_pos = "eol",
-        })
+        local task_body = "- " .. box .. " " .. v.name
+        vim.api.nvim_buf_set_lines(ui_win.buf, i - 1, -1, false, { task_body .. " " .. v.project_name .. " " .. v.due })
+        vim.api.nvim_buf_add_highlight(
+            ui_win.buf,
+            ns_id,
+            "@character",
+            i - 1,
+            #task_body,
+            #task_body + #v.project_name + 1
+        )
+        vim.api.nvim_buf_add_highlight(ui_win.buf, ns_id, "@number", i - 1, #task_body + #v.project_name + 1, -1)
     end
 end
 
