@@ -45,6 +45,15 @@ local function config_filter_check(name)
     end
 end
 
+M.pick_tasks = function(args)
+    local filter = config_filter_check(args)
+    local todo_list = api_get_tasks(filter)
+    table.sort(todo_list, function(a, b)
+        return a.due < b.due
+    end)
+    ui.show_todos(todo_list)
+end
+
 M.show_tasks = function(args)
     local ns_id = vim.api.nvim_create_namespace("todoist")
     local ui_win = ui.create_win()
@@ -74,9 +83,11 @@ M.show_tasks = function(args)
     end
 end
 
-M.add_tasks = function()
+M.create_task = function()
     vim.ui.input({ prompt = "Add a task" }, function(input)
-        print(input)
+        local token = config.get_config().token_api
+        local req = utils.post_request(token, input)
+        vim.notify("Task created successfully: " .. req["url"], vim.log.levels.INFO)
     end)
 end
 
