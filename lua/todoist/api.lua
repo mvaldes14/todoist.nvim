@@ -58,12 +58,9 @@ end
 --     end
 -- end
 
-M.pick_tasks = function(args)
+M.find_task = function(args)
     local filter = config_filter_check(args)
-    local todo_list = api_get_tasks(filter)
-    table.sort(todo_list, function(a, b)
-        return a.due < b.due
-    end)
+    local todo_list = form_tasks(filter)
     ui.show_todos(todo_list)
 end
 
