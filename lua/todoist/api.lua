@@ -5,6 +5,15 @@ local todos = require("todoist.data")
 local ui = require("todoist.ui")
 local config = require("todoist.config")
 
+local function config_filter_check(name)
+    local filters = config.get_config().filters
+    if filters[name] then
+        return filters[name]
+    else
+        return filters["all"]
+    end
+end
+
 local function api_get_tasks(filter)
     local token = config.get_config().token_api
     local data = utils.get_request_tasks(filter, token)
@@ -17,15 +26,6 @@ local function api_get_projects()
     return todos.project_list(data)
 end
 
--- local function filter_task()
---     local data = api_get_tasks(config.token_api)
---     for _, v in ipairs(data) do
---         if v.name == item_name then
---             return v.id
---         end
---     end
--- end
-
 local function get_project_name(id, project_list)
     local res = ""
     for _, v in ipairs(project_list) do
@@ -36,14 +36,27 @@ local function get_project_name(id, project_list)
     return res
 end
 
-local function config_filter_check(name)
-    local filters = config.get_config().filters
-    if filters[name] then
-        return filters[name]
-    else
-        return filters["all"]
+local function form_tasks(args)
+    local filter = config_filter_check(args)
+    local todo_list = api_get_tasks(filter)
+    local project_list = api_get_projects()
+    table.sort(todo_list, function(a, b)
+        return a.due < b.due
+    end)
+    for _, v in ipairs(todo_list) do
+        v.project_name = get_project_name(v.project_id, project_list)
     end
+    return todo_list
 end
+
+-- local function filter_task()
+--     local data = api_get_tasks(config.token_api)
+--     for _, v in ipairs(data) do
+--         if v.name == item_name then
+--             return v.id
+--         end
+--     end
+-- end
 
 M.pick_tasks = function(args)
     local filter = config_filter_check(args)
@@ -57,18 +70,12 @@ end
 M.show_tasks = function(args)
     local ns_id = vim.api.nvim_create_namespace("todoist")
     local ui_win = ui.create_win()
-    local filter = config_filter_check(args)
-    local todo_list = api_get_tasks(filter)
-    local project_list = api_get_projects()
-    table.sort(todo_list, function(a, b)
-        return a.due < b.due
-    end)
+    local todo_list = form_tasks(args)
     for i, v in ipairs(todo_list) do
         local box = "[ ]"
         if v.completed then
             box = "[x]"
         end
-        v.project_name = get_project_name(v.project_id, project_list)
         local task_body = "- " .. box .. " " .. v.name
         vim.api.nvim_buf_set_lines(ui_win.buf, i - 1, -1, false, { task_body .. " " .. v.project_name .. " " .. v.due })
         vim.api.nvim_buf_add_highlight(
