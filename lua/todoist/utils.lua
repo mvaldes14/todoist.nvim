@@ -1,6 +1,7 @@
 local M = {}
 
 local url = "https://api.todoist.com/rest/v2/"
+local config = require("todoist.config")
 
 local function encode_url(str)
     if str then
@@ -11,7 +12,8 @@ local function encode_url(str)
     return str
 end
 
-M.get_request_tasks = function(filter, token)
+M.get_request_tasks = function(filter)
+    local token = config.get_config().token_api
     local params = encode_url(filter)
     local full_url = url .. "tasks" .. "?filter=" .. params
     local result = vim.system({
@@ -25,7 +27,23 @@ M.get_request_tasks = function(filter, token)
     return vim.json.decode(result)
 end
 
-M.get_request_projects = function(token)
+M.get_single_task = function(filter)
+    local token = config.get_config().token_api
+    local params = encode_url(filter)
+    local full_url = url .. "tasks/" .. params
+    local result = vim.system({
+        "curl",
+        "-s",
+        "-H",
+        "Authorization: Bearer " .. token,
+        full_url,
+    })
+        :wait().stdout
+    return vim.json.decode(result)
+end
+
+M.get_request_projects = function()
+    local token = config.get_config().token_api
     local result = vim.system({
         "curl",
         "-s",
@@ -37,7 +55,8 @@ M.get_request_projects = function(token)
     return vim.json.decode(result)
 end
 
-M.post_request = function(token, payload)
+M.post_request = function(payload)
+    local token = config.get_config().token_api
     local parts = {}
     for part in string.gmatch(payload, "([^$]+)") do
         table.insert(parts, part)

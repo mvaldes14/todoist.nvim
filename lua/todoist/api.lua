@@ -15,14 +15,12 @@ local function config_filter_check(name)
 end
 
 local function api_get_tasks(filter)
-    local token = config.get_config().token_api
-    local data = utils.get_request_tasks(filter, token)
+    local data = utils.get_request_tasks(filter)
     return todos.task_list(data)
 end
 
 local function api_get_projects()
-    local token = config.get_config().token_api
-    local data = utils.get_request_projects(token)
+    local data = utils.get_request_projects()
     return todos.project_list(data)
 end
 
@@ -48,15 +46,6 @@ local function form_tasks(args)
     end
     return todo_list
 end
-
--- local function filter_task()
---     local data = api_get_tasks(config.token_api)
---     for _, v in ipairs(data) do
---         if v.name == item_name then
---             return v.id
---         end
---     end
--- end
 
 M.find_task = function(args)
     local filter = config_filter_check(args)
@@ -89,8 +78,7 @@ end
 
 M.create_task = function()
     vim.ui.input({ prompt = "Add a task" }, function(input)
-        local token = config.get_config().token_api
-        local req = utils.post_request(token, input)
+        local req = utils.post_request(input)
         vim.notify("Task created successfully: " .. req["url"], vim.log.levels.INFO)
     end)
 end
