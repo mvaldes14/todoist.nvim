@@ -78,6 +78,22 @@ M.post_request = function(payload)
     return vim.json.decode(result)
 end
 
+M.close_request = function(id)
+    local token = config.get_config().token_api
+    local result = vim.system({
+        "curl",
+        "-XPOST",
+        "-s",
+        "-H",
+        "Authorization: Bearer " .. token,
+        "-H",
+        "Content-Type: application/json",
+        url .. "tasks/" .. id .. "/close",
+    })
+        :wait().stdout
+    return result
+end
+
 M.print = function(payload)
     print(vim.inspect(payload))
 end

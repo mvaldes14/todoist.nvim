@@ -26,7 +26,7 @@ local function create_win(opts)
         title = opts.name or "Todoist",
         title_pos = "center",
         border = "rounded",
-        footer = "<q> Close",
+        footer = opts.footer or "<q> Close",
         footer_pos = "center",
     })
     vim.api.nvim_buf_set_option(buf, "filetype", "markdown")
@@ -42,8 +42,8 @@ M.create_win = create_win
 
 local function show_todo_item(item)
     local name = item.name
-    local win = create_win({ name = name, small = true })
-    local task_info = utils.get_single_task(item.id)
+    local win = create_win({ name = name, small = true, footer = "<q> Close, <x> Close Task" })
+    local task_info = utils.get_single_task(item.id) or {}
     local payload = {
         Content = vim.tbl_get(task_info, "content"),
         Created = vim.tbl_get(task_info, "created_at"),
@@ -56,19 +56,25 @@ local function show_todo_item(item)
         priority = vim.tbl_get(task_info, "priority"),
         url = vim.tbl_get(task_info, "url"),
     }
+    vim.api.nvim_buf_set_lines(win.buf, 0, -1, false, { "ID: " .. item.id })
     for k, v in pairs(payload) do
         vim.api.nvim_buf_set_lines(win.buf, -1, -1, false, { k .. ": " .. tostring(vim.inspect(v)) })
     end
+    vim.keymap.set({ "n" }, "x", function()
+        if vim.api.nvim_buf_is_valid(win.buf) then
+            local api = require("todoist.api")
+            api.complete_task(item.id)
+        end
+    end, { buffer = win.buf })
 end
 
 M.show_todos = function(items)
     local opts = {
-        prompt = "Pick a todo",
+        prompt = "Pick an item",
         format_item = function(item)
             return "#" .. item.project_name .. ": " .. item.name .. " - " .. item.due
         end,
     }
-
     vim.ui.select(items, opts, function(selected)
         show_todo_item(selected)
     end)

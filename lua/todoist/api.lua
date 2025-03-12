@@ -58,11 +58,7 @@ M.show_tasks = function(args)
     local ui_win = ui.create_win()
     local todo_list = form_tasks(args)
     for i, v in ipairs(todo_list) do
-        local box = "[ ]"
-        if v.completed then
-            box = "[x]"
-        end
-        local task_body = "- " .. box .. " " .. v.name
+        local task_body = "- " .. v.name
         vim.api.nvim_buf_set_lines(ui_win.buf, i - 1, -1, false, { task_body .. " " .. v.project_name .. " " .. v.due })
         vim.api.nvim_buf_add_highlight(
             ui_win.buf,
@@ -83,10 +79,11 @@ M.create_task = function()
     end)
 end
 
-M.api_complete_tasks = function()
-    local cursor = vim.api.nvim_win_get_cursor(0)
-    local line = vim.fn.getline(cursor[1])
-    print(line)
+M.complete_task = function(id)
+    local req = utils.close_request(id)
+    if req == "" then
+        vim.notify("Task completed successfully")
+    end
 end
 
 return M
