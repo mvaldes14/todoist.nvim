@@ -34,9 +34,8 @@ local function get_project_name(id, project_list)
     return res
 end
 
-local function form_tasks(args)
-    local filter = config_filter_check(args)
-    local todo_list = api_get_tasks(filter)
+local function form_tasks(filter_name)
+    local todo_list = api_get_tasks(filter_name)
     local project_list = api_get_projects()
     table.sort(todo_list, function(a, b)
         return a.due < b.due
@@ -56,7 +55,8 @@ end
 M.show_tasks = function(args)
     local ns_id = vim.api.nvim_create_namespace("todoist")
     local ui_win = ui.create_win()
-    local todo_list = form_tasks(args)
+    local filter = config_filter_check(args)
+    local todo_list = form_tasks(filter)
     for i, v in ipairs(todo_list) do
         local task_body = "-[" .. v.id .. "] " .. v.name
         vim.api.nvim_buf_set_lines(

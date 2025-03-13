@@ -24,7 +24,7 @@ M.add_tasks = function()
 end
 
 M.pick_tasks = function(opts)
-    api.find_task(opts)
+    api.find_task(opts.args)
 end
 
 return M
