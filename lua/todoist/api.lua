@@ -58,17 +58,24 @@ M.show_tasks = function(args)
     local ui_win = ui.create_win()
     local todo_list = form_tasks(args)
     for i, v in ipairs(todo_list) do
-        local task_body = "- " .. v.name
-        vim.api.nvim_buf_set_lines(ui_win.buf, i - 1, -1, false, { task_body .. " " .. v.project_name .. " " .. v.due })
+        local task_body = "-[" .. v.id .. "] " .. v.name
+        vim.api.nvim_buf_set_lines(
+            ui_win.buf,
+            i - 1,
+            -1,
+            false,
+            { task_body .. " #" .. v.project_name .. "  " .. v.due }
+        )
+        vim.api.nvim_buf_add_highlight(ui_win.buf, ns_id, "@comment", i - 1, 2, #v.id + 2)
         vim.api.nvim_buf_add_highlight(
             ui_win.buf,
             ns_id,
             "@character",
             i - 1,
             #task_body,
-            #task_body + #v.project_name + 1
+            #task_body + #v.project_name + 2
         )
-        vim.api.nvim_buf_add_highlight(ui_win.buf, ns_id, "@number", i - 1, #task_body + #v.project_name + 1, -1)
+        vim.api.nvim_buf_add_highlight(ui_win.buf, ns_id, "@number", i - 1, #task_body + #v.project_name + 2, -1)
     end
 end
 

@@ -7,7 +7,7 @@ local function create_win(opts)
     opts = opts or {}
     local width, height, col, row
     if opts.small then
-        width = math.floor(vim.o.columns * 0.4)
+        width = math.floor(vim.o.columns * 0.6)
         height = math.floor(vim.o.lines * 0.4)
     else
         width = math.floor(vim.o.columns * 0.8)
@@ -49,12 +49,12 @@ local function show_todo_item(item)
         Created = vim.tbl_get(task_info, "created_at"),
         Deadline = vim.tbl_get(task_info, "deadline"),
         Description = vim.tbl_get(task_info, "description"),
-        due = vim.tbl_get(task_info, "due.date"),
-        recurring = vim.tbl_get(task_info, "due.is_recurring"),
-        done = vim.tbl_get(task_info, "is_completed"),
-        labels = vim.tbl_get(task_info, "labels"),
-        priority = vim.tbl_get(task_info, "priority"),
-        url = vim.tbl_get(task_info, "url"),
+        Due = vim.tbl_get(task_info, "due.date"),
+        Recurring = vim.tbl_get(task_info, "due.is_recurring"),
+        Done = vim.tbl_get(task_info, "is_completed"),
+        Labels = vim.tbl_get(task_info, "labels"),
+        Priority = vim.tbl_get(task_info, "priority"),
+        Url = vim.tbl_get(task_info, "url"),
     }
     vim.api.nvim_buf_set_lines(win.buf, 0, -1, false, { "ID: " .. item.id })
     for k, v in pairs(payload) do
@@ -76,7 +76,9 @@ M.show_todos = function(items)
         end,
     }
     vim.ui.select(items, opts, function(selected)
-        show_todo_item(selected)
+        if selected then
+            show_todo_item(selected)
+        end
     end)
 end
 
