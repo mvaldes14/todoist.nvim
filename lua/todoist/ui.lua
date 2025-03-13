@@ -29,7 +29,6 @@ local function create_win(opts)
         footer = opts.footer or "<q> Close",
         footer_pos = "center",
     })
-    vim.api.nvim_buf_set_option(buf, "filetype", "markdown")
     vim.keymap.set({ "n" }, "q", function()
         if vim.api.nvim_buf_is_valid(buf) then
             vim.api.nvim_win_close(win, true)

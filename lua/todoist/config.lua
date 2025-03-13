@@ -9,6 +9,7 @@ M.config = {
     filters = {
         all = "all",
     },
+    default_filter = "all",
 }
 
 M.set_config = function(opts)

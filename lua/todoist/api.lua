@@ -10,7 +10,7 @@ local function config_filter_check(name)
     if filters[name] then
         return filters[name]
     else
-        return filters["all"]
+        return config.get_config().default_filter
     end
 end
 
