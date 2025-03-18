@@ -54,7 +54,7 @@ end
 
 M.show_tasks = function(args)
     local ns_id = vim.api.nvim_create_namespace("todoist")
-    local ui_win = ui.create_win()
+    local float = ui.create_win({ footer = "<q> Close Window <X> Close Task " })
     local filter = config_filter_check(args)
     local todo_list = form_tasks(filter)
     for i, v in ipairs(todo_list) do
@@ -65,10 +65,10 @@ M.show_tasks = function(args)
         local test = vim.split(task_body, ",")
         local final_body = string.gsub(task_body, ",", " ")
 
-        vim.api.nvim_buf_set_lines(ui_win.buf, i - 1, -1, false, { final_body })
-        vim.api.nvim_buf_add_highlight(ui_win.buf, ns_id, "@comment", i - 1, 0, #test[1]) -- ID
+        vim.api.nvim_buf_set_lines(float.buf, i - 1, -1, false, { final_body })
+        vim.api.nvim_buf_add_highlight(float.buf, ns_id, "@comment", i - 1, 0, #test[1]) -- ID
         vim.api.nvim_buf_add_highlight(
-            ui_win.buf,
+            float.buf,
             ns_id,
             "@character",
             i - 1,
@@ -76,7 +76,7 @@ M.show_tasks = function(args)
             #test[1] + #test[2] + #test[3] + 2
         ) -- Task Name
         vim.api.nvim_buf_add_highlight(
-            ui_win.buf,
+            float.buf,
             ns_id,
             "@number",
             i - 1,
@@ -84,7 +84,7 @@ M.show_tasks = function(args)
             #test[1] + #test[2] + #test[3] + #test[4] + 3
         ) -- Project Name
         vim.api.nvim_buf_add_highlight(
-            ui_win.buf,
+            float.buf,
             ns_id,
             "@constructor",
             i - 1,
@@ -92,6 +92,11 @@ M.show_tasks = function(args)
             -1
         ) -- Labels
     end
+    vim.keymap.set({ "n" }, "x", function()
+        local line = vim.api.nvim_get_current_line()
+        local id = string.match(line, "%[(%d+)%]")
+        M.complete_task(id)
+    end, { buffer = float.buf })
 end
 
 M.create_task = function()
