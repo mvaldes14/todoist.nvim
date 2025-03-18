@@ -58,24 +58,39 @@ M.show_tasks = function(args)
     local filter = config_filter_check(args)
     local todo_list = form_tasks(filter)
     for i, v in ipairs(todo_list) do
-        local task_body = "-[" .. v.id .. "] " .. v.name
-        vim.api.nvim_buf_set_lines(
-            ui_win.buf,
-            i - 1,
-            -1,
-            false,
-            { task_body .. " #" .. v.project_name .. "  " .. v.due }
-        )
-        vim.api.nvim_buf_add_highlight(ui_win.buf, ns_id, "@comment", i - 1, 2, #v.id + 2)
+        local task_body = "-[" .. v.id .. "]," .. v.name .. ",#" .. v.project_name .. ", " .. v.due .. ","
+        for _, l in pairs(v.labels) do
+            task_body = task_body .. " @" .. l
+        end
+        local test = vim.split(task_body, ",")
+        local final_body = string.gsub(task_body, ",", " ")
+
+        vim.api.nvim_buf_set_lines(ui_win.buf, i - 1, -1, false, { final_body })
+        vim.api.nvim_buf_add_highlight(ui_win.buf, ns_id, "@comment", i - 1, 0, #test[1]) -- ID
         vim.api.nvim_buf_add_highlight(
             ui_win.buf,
             ns_id,
             "@character",
             i - 1,
-            #task_body,
-            #task_body + #v.project_name + 2
-        )
-        vim.api.nvim_buf_add_highlight(ui_win.buf, ns_id, "@number", i - 1, #task_body + #v.project_name + 2, -1)
+            #test[1] + #test[2] + 1,
+            #test[1] + #test[2] + #test[3] + 2
+        ) -- Task Name
+        vim.api.nvim_buf_add_highlight(
+            ui_win.buf,
+            ns_id,
+            "@number",
+            i - 1,
+            #test[1] + #test[2] + #test[3] + 2,
+            #test[1] + #test[2] + #test[3] + #test[4] + 3
+        ) -- Project Name
+        vim.api.nvim_buf_add_highlight(
+            ui_win.buf,
+            ns_id,
+            "@constructor",
+            i - 1,
+            #test[1] + #test[2] + #test[3] + #test[4] + 3,
+            -1
+        ) -- Labels
     end
 end
 

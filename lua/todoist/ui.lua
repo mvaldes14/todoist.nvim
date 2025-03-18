@@ -56,6 +56,11 @@ local function show_todo_item(item)
         Url = vim.tbl_get(task_info, "url"),
     }
     vim.api.nvim_buf_set_lines(win.buf, 0, -1, false, { "ID: " .. item.id })
+    local labels = ""
+    for _, v in pairs(payload["Labels"]) do
+        labels = labels .. "@" .. v
+    end
+    payload["Labels"] = labels
     for k, v in pairs(payload) do
         vim.api.nvim_buf_set_lines(win.buf, -1, -1, false, { k .. ": " .. tostring(vim.inspect(v)) })
     end
@@ -71,7 +76,11 @@ M.show_todos = function(items)
     local opts = {
         prompt = "Pick an item",
         format_item = function(item)
-            return "#" .. item.project_name .. ": " .. item.name .. " - " .. item.due
+            local labels = ""
+            for _, v in pairs(item.labels) do
+                labels = labels .. " @" .. v
+            end
+            return "#" .. item.project_name .. ": " .. item.name .. " - " .. item.due .. " " .. labels
         end,
     }
     vim.ui.select(items, opts, function(selected)

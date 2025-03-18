@@ -6,6 +6,7 @@ local function todo_new(obj)
     local due = vim.tbl_get(obj, "due", "date")
     local completed = vim.tbl_get(obj, "is_completed")
     local project_id = vim.tbl_get(obj, "project_id")
+    local labels = vim.tbl_get(obj, "labels")
     return {
         id = id,
         name = name,
@@ -13,6 +14,7 @@ local function todo_new(obj)
         completed = completed,
         project_id = project_id,
         project_name = "",
+        labels = labels,
     }
 end
 
