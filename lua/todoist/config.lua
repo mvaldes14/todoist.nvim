@@ -4,7 +4,7 @@ local M = {}
 ---@class TodoistConfig
 ---@field token_api string: The api token to use
 ---@field filters table: Test value
-M.config = {
+local default_config = {
     token_api = "",
     filters = {
         all = "all",
@@ -13,11 +13,25 @@ M.config = {
 }
 
 M.set_config = function(opts)
-    M.config = vim.tbl_deep_extend("force", M.config, opts)
+    opts = opts or {}
+    opts.token_api = os.getenv("TODOIST_TOKEN") or opts.token_api
+    default_config = vim.tbl_deep_extend("force", default_config, opts)
 end
 
 M.get_config = function()
-    return M.config
+    return default_config
+end
+
+---@return boolean
+M.token = function()
+    if default_config.token_api == "" then
+        vim.notify(
+            "Please set the TODOIST_TOKEN environment variable or provide a token in the config.",
+            vim.log.levels.ERROR
+        )
+        return false
+    end
+    return true
 end
 
 return M
